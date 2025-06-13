@@ -11,7 +11,7 @@ import (
 const DateFormat = "20060102"
 const maxDaysInterval = 400
 
-func afterNow(date, now time.Time) bool {
+func afterNow(date time.Time, now time.Time) bool {
 	return date.After(now)
 }
 

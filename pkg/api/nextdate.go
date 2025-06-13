@@ -12,7 +12,7 @@ const DateFormat = "20060102"
 const maxDaysInterval = 400
 
 func afterNow(date time.Time, now time.Time) bool {
-	return date.After(now)
+	return date.Format(DateFormat) > now.Format(DateFormat)
 }
 
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
@@ -21,7 +21,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		return "", err
 	}
 
-	if repeat == "" {
+	if len(repeat) == 0 {
 		return "", errors.New("incorrect repeat rule provided")
 	}
 

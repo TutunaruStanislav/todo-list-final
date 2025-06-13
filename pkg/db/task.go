@@ -101,3 +101,23 @@ func UpdateTask(task *Task) error {
 	}
 	return nil
 }
+
+func DeleteTask(id int64) error {
+	Init()
+	defer database.Close()
+
+	res, err := database.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("there were no rows deleted")
+	}
+
+	return nil
+}

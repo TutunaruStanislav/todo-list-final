@@ -1,21 +1,23 @@
 package api
 
 import (
-	"gop/pkg/db"
 	"net/http"
+
+	"gop/pkg/db"
 )
 
-func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
-	task, err := validateRequest(r)
+func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := parseId(r)
 	if err != nil {
 		writeError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = db.UpdateTask(task)
+	err = db.DeleteTask(id)
 	if err != nil {
 		writeError(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
 	writeJson(w, SuccessResponse, http.StatusOK)
 }

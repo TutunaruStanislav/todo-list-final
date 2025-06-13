@@ -9,6 +9,8 @@ type Error struct {
 	Error string `json:"error"`
 }
 
+var SuccessResponse struct{}
+
 func taskHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
@@ -18,6 +20,8 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		getTaskHandler(w, r)
 	case http.MethodPut:
 		updateTaskHandler(w, r)
+	case http.MethodDelete:
+		deleteTaskHandler(w, r)
 	}
 }
 
@@ -25,6 +29,7 @@ func Init() {
 	http.HandleFunc("/api/nextdate", nextDayHandler)
 	http.HandleFunc("/api/task", taskHandler)
 	http.HandleFunc("/api/tasks", tasksHandler)
+	http.HandleFunc("/api/task/done", taskDoneHandler)
 }
 
 func writeJson(w http.ResponseWriter, data any, statusCode int) {
@@ -40,7 +45,5 @@ func writeJson(w http.ResponseWriter, data any, statusCode int) {
 }
 
 func writeError(w http.ResponseWriter, err string, statusCode int) {
-	var error Error
-	error.Error = err
-	writeJson(w, error, statusCode)
+	writeJson(w, Error{Error: err}, statusCode)
 }

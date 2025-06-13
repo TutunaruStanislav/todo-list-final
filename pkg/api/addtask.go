@@ -7,13 +7,12 @@ import (
 	"gop/pkg/db"
 )
 
-type Success struct {
+type TaskAddReponse struct {
 	ID string `json:"id"`
 }
 
 func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task *db.Task
-	var success Success
 
 	task, err := validateRequest(r)
 	if err != nil {
@@ -26,7 +25,5 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	success.ID = strconv.FormatInt(id, 10)
-
-	writeJson(w, success, http.StatusOK)
+	writeJson(w, TaskAddReponse{ID: strconv.FormatInt(id, 10)}, http.StatusOK)
 }

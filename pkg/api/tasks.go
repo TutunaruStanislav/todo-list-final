@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"gop/pkg/db"
 )
@@ -13,7 +14,17 @@ type TasksResponse struct {
 }
 
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
-	tasks, err := db.GetTasks(maxTasks)
+	search := r.URL.Query().Get("search")
+	var date string
+	if len(search) > 0 {
+		parsedDate, err := time.Parse(InputDateFormat, search)
+		if err == nil {
+			date = parsedDate.Format(DateFormat)
+			search = ""
+		}
+	}
+
+	tasks, err := db.GetTasks(maxTasks, search, date)
 	if err != nil {
 		writeError(w, err.Error(), http.StatusInternalServerError)
 	}

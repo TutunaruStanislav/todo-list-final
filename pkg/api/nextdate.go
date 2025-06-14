@@ -9,6 +9,7 @@ import (
 )
 
 const DateFormat = "20060102"
+const InputDateFormat = "02.01.2006"
 const maxDaysInterval = 400
 
 var daysArray [32]bool

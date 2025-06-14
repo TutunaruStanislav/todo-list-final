@@ -29,12 +29,26 @@ func AddTask(task *Task) (int64, error) {
 	return res.LastInsertId()
 }
 
-func GetTasks(limit int) ([]*Task, error) {
+func GetTasks(limit int, search string, date string) ([]*Task, error) {
 	Init()
 	defer database.Close()
 
-	rows, err := database.Query("SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date LIMIT :limit",
-		sql.Named("limit", limit))
+	var rows *sql.Rows
+	var err error
+	if len(search) > 0 {
+		search := "%" + search + "%"
+		rows, err = database.Query("SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date LIMIT :limit",
+			sql.Named("limit", limit),
+			sql.Named("search", search))
+	} else if len(date) > 0 {
+		rows, err = database.Query("SELECT * FROM scheduler WHERE date = :date LIMIT :limit",
+			sql.Named("limit", limit),
+			sql.Named("date", date))
+	} else {
+		rows, err = database.Query("SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date LIMIT :limit",
+			sql.Named("limit", limit))
+	}
+
 	if err != nil {
 		return nil, err
 	}

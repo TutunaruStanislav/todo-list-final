@@ -1,8 +1,9 @@
 package api
 
 import (
-	"gop/pkg/db"
 	"net/http"
+
+	"gop/pkg/db"
 )
 
 func updateTaskHandler(w http.ResponseWriter, r *http.Request) {

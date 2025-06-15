@@ -2,7 +2,7 @@ package db
 
 type User struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"-"`
 }
 
 func NewUser() *User {

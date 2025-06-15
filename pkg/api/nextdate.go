@@ -15,6 +15,40 @@ const maxDaysInterval = 400
 var daysArray [32]bool
 var monthsArray [13]bool
 
+func datesAreSame(date time.Time, firstOfMonth time.Time, last bool, prevLast bool) bool {
+	if last && prevLast {
+		lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+		prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
+		if date.Day() == lastOfMonth.Day() || date.Day() == prevLastOfMonth.Day() {
+			return true
+		}
+	} else if last {
+		lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+		if date.Day() == lastOfMonth.Day() {
+			return true
+		}
+	} else if prevLast {
+		prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
+		if date.Day() == prevLastOfMonth.Day() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func weekdaysAreSame(date time.Time, parsedWeekday int) bool {
+	currentWeekday := int(date.Weekday())
+	if currentWeekday == 0 {
+		currentWeekday = 7
+	}
+	if currentWeekday == parsedWeekday {
+		return true
+	}
+
+	return false
+}
+
 func afterNow(date time.Time, now time.Time) bool {
 	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).After(time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC))
 }
@@ -188,22 +222,8 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 				if afterNow(date, now) {
 					if monthsArray[int(date.Month())] {
 						firstOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
-						if last && prevLast {
-							lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-							prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
-							if date.Day() == lastOfMonth.Day() || date.Day() == prevLastOfMonth.Day() {
-								break
-							}
-						} else if last {
-							lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-							if date.Day() == lastOfMonth.Day() {
-								break
-							}
-						} else if prevLast {
-							prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
-							if date.Day() == prevLastOfMonth.Day() {
-								break
-							}
+						if datesAreSame(date, firstOfMonth, last, prevLast) {
+							break
 						}
 					}
 					if daysArray[int(date.Day())] {
@@ -225,22 +245,8 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 						if daysArray[int(date.Day())] {
 							break
 						} else {
-							if last && prevLast {
-								lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-								prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
-								if date.Day() == lastOfMonth.Day() || date.Day() == prevLastOfMonth.Day() {
-									break
-								}
-							} else if last {
-								lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-								if date.Day() == lastOfMonth.Day() {
-									break
-								}
-							} else if prevLast {
-								prevLastOfMonth := firstOfMonth.AddDate(0, 1, -2)
-								if date.Day() == prevLastOfMonth.Day() {
-									break
-								}
+							if datesAreSame(date, firstOfMonth, last, prevLast) {
+								break
 							}
 						}
 					}
@@ -266,11 +272,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			for {
 				date = date.AddDate(0, 0, 1)
 				if afterNow(date, now) {
-					currentWeekday := int(date.Weekday())
-					if currentWeekday == 0 {
-						currentWeekday = 7
-					}
-					if currentWeekday == weekday {
+					if weekdaysAreSame(date, weekday) {
 						break
 					}
 				}
@@ -290,11 +292,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 				date = date.AddDate(0, 0, 1)
 				if afterNow(date, now) {
 					for _, weekday := range parsedWeekdays {
-						currentWeekday := int(date.Weekday())
-						if currentWeekday == 0 {
-							currentWeekday = 7
-						}
-						if currentWeekday == weekday {
+						if weekdaysAreSame(date, weekday) {
 							break outerLoop
 						}
 					}

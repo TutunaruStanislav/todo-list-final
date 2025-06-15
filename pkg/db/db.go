@@ -20,7 +20,7 @@ const schema string = `
 	CREATE INDEX idx_scheduler_date ON scheduler (date);
 `
 
-func Init() error {
+func Init() (*sql.DB, error) {
 	var dbFile = "scheduler.db"
 	path := os.Getenv("TODO_DBFILE")
 	if len(path) > 0 {
@@ -35,15 +35,15 @@ func Init() error {
 
 	database, err = sql.Open("sqlite", dbFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if install {
 		_, err := database.Exec(schema)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return database, nil
 }

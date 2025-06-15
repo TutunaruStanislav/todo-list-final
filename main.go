@@ -15,13 +15,13 @@ func main() {
 		panic(err.Error())
 	}
 
-	err = db.Init()
+	db, err := db.Init()
 	if err != nil {
 		fmt.Printf("DB initialization error: %s", err)
 		return
 	}
 
-	err = server.Run()
+	err = server.Run(db)
 	if err != nil {
 		fmt.Printf("Start server error: %s", err.Error())
 		return

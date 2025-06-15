@@ -13,11 +13,8 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
-func AddTask(task *Task) (int64, error) {
-	Init()
-	defer database.Close()
-
-	res, err := database.Exec("INSERT INTO scheduler (date, title, comment, repeat) VALUES (:date, :title, :comment, :repeat)",
+func AddTask(db *sql.DB, task *Task) (int64, error) {
+	res, err := db.Exec("INSERT INTO scheduler (date, title, comment, repeat) VALUES (:date, :title, :comment, :repeat)",
 		sql.Named("date", task.Date),
 		sql.Named("title", task.Title),
 		sql.Named("comment", task.Comment),
@@ -29,23 +26,20 @@ func AddTask(task *Task) (int64, error) {
 	return res.LastInsertId()
 }
 
-func GetTasks(limit int, search string, date string) ([]*Task, error) {
-	Init()
-	defer database.Close()
-
+func GetTasks(db *sql.DB, limit int, search string, date string) ([]*Task, error) {
 	var rows *sql.Rows
 	var err error
 	if len(search) > 0 {
 		search := "%" + search + "%"
-		rows, err = database.Query("SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date LIMIT :limit",
+		rows, err = db.Query("SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date LIMIT :limit",
 			sql.Named("limit", limit),
 			sql.Named("search", search))
 	} else if len(date) > 0 {
-		rows, err = database.Query("SELECT * FROM scheduler WHERE date = :date LIMIT :limit",
+		rows, err = db.Query("SELECT * FROM scheduler WHERE date = :date LIMIT :limit",
 			sql.Named("limit", limit),
 			sql.Named("date", date))
 	} else {
-		rows, err = database.Query("SELECT id, date, title, comment, repeat FROM scheduler ORDER BY date LIMIT :limit",
+		rows, err = db.Query("SELECT * FROM scheduler ORDER BY date LIMIT :limit",
 			sql.Named("limit", limit))
 	}
 
@@ -76,13 +70,10 @@ func GetTasks(limit int, search string, date string) ([]*Task, error) {
 	return res, nil
 }
 
-func GetTask(id int64) (*Task, error) {
-	Init()
-	defer database.Close()
-
+func GetTask(db *sql.DB, id int64) (*Task, error) {
 	task := &Task{}
 
-	row := database.QueryRow("SELECT id, date, title, comment, repeat FROM scheduler WHERE id = :id", sql.Named("id", id))
+	row := db.QueryRow("SELECT id, date, title, comment, repeat FROM scheduler WHERE id = :id", sql.Named("id", id))
 	err := row.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
 	if err != nil {
 		return nil, errors.New("task not found")
@@ -91,11 +82,8 @@ func GetTask(id int64) (*Task, error) {
 	return task, nil
 }
 
-func UpdateTask(task *Task) error {
-	Init()
-	defer database.Close()
-
-	res, err := database.Exec("UPDATE scheduler SET date = :date, title = :title, comment = :comment, repeat = :repeat WHERE id = :id",
+func UpdateTask(db *sql.DB, task *Task) error {
+	res, err := db.Exec("UPDATE scheduler SET date = :date, title = :title, comment = :comment, repeat = :repeat WHERE id = :id",
 		sql.Named("date", task.Date),
 		sql.Named("title", task.Title),
 		sql.Named("comment", task.Comment),
@@ -116,11 +104,8 @@ func UpdateTask(task *Task) error {
 	return nil
 }
 
-func DeleteTask(id int64) error {
-	Init()
-	defer database.Close()
-
-	res, err := database.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
+func DeleteTask(db *sql.DB, id int64) error {
+	res, err := db.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
 	if err != nil {
 		return err
 	}

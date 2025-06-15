@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 )
@@ -11,25 +12,35 @@ type Error struct {
 
 var SuccessResponse struct{}
 
-func taskHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
+type TaskHandler struct {
+	db *sql.DB
+}
 
-	case http.MethodPost:
-		addTaskHandler(w, r)
-	case http.MethodGet:
-		getTaskHandler(w, r)
-	case http.MethodPut:
-		updateTaskHandler(w, r)
-	case http.MethodDelete:
-		deleteTaskHandler(w, r)
+func NewTaskHandler(db *sql.DB) *TaskHandler {
+	return &TaskHandler{
+		db: db,
 	}
 }
 
-func Init() {
+func (h *TaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+
+	case http.MethodPost:
+		NewAddTaskHandler(h.db).ServeHTTP(w, r)
+	case http.MethodGet:
+		NewGetTaskHandler(h.db).ServeHTTP(w, r)
+	case http.MethodPut:
+		NewUpdateTaskHandler(h.db).ServeHTTP(w, r)
+	case http.MethodDelete:
+		NewDeleteTaskHandler(h.db).ServeHTTP(w, r)
+	}
+}
+
+func Init(db *sql.DB) {
 	http.HandleFunc("/api/nextdate", nextDayHandler)
-	http.HandleFunc("/api/task", taskHandler)
-	http.HandleFunc("/api/tasks", tasksHandler)
-	http.HandleFunc("/api/task/done", taskDoneHandler)
+	http.HandleFunc("/api/task", NewTaskHandler(db).ServeHTTP)
+	http.HandleFunc("/api/tasks", NewTasksHandler(db).ServeHTTP)
+	http.HandleFunc("/api/task/done", NewTaskDoneHandler(db).ServeHTTP)
 }
 
 func writeJson(w http.ResponseWriter, data any, statusCode int) {

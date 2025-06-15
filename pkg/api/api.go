@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Error struct {
@@ -12,36 +14,15 @@ type Error struct {
 
 var SuccessResponse struct{}
 
-type TaskHandler struct {
-	db *sql.DB
-}
-
-func NewTaskHandler(db *sql.DB) *TaskHandler {
-	return &TaskHandler{
-		db: db,
-	}
-}
-
-func (h *TaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-
-	case http.MethodPost:
-		NewAddTaskHandler(h.db).ServeHTTP(w, r)
-	case http.MethodGet:
-		NewGetTaskHandler(h.db).ServeHTTP(w, r)
-	case http.MethodPut:
-		NewUpdateTaskHandler(h.db).ServeHTTP(w, r)
-	case http.MethodDelete:
-		NewDeleteTaskHandler(h.db).ServeHTTP(w, r)
-	}
-}
-
-func Init(db *sql.DB) {
-	http.HandleFunc("/api/nextdate", nextDayHandler)
-	http.HandleFunc("/api/signin", signInHandler)
-	http.HandleFunc("/api/task", auth(NewTaskHandler(db).ServeHTTP))
-	http.HandleFunc("/api/tasks", auth(NewTasksHandler(db).ServeHTTP))
-	http.HandleFunc("/api/task/done", auth(NewTaskDoneHandler(db).ServeHTTP))
+func Init(db *sql.DB, router *chi.Mux) {
+	router.Get("/api/nextdate", nextDayHandler)
+	router.Post("/api/signin", signInHandler)
+	router.Post("/api/task/done", auth(NewTaskDoneHandler(db).ServeHTTP))
+	router.Get("/api/tasks", auth(NewTasksHandler(db).ServeHTTP))
+	router.Get("/api/task", auth(NewGetTaskHandler(db).ServeHTTP))
+	router.Post("/api/task", auth(NewAddTaskHandler(db).ServeHTTP))
+	router.Put("/api/task", auth(NewUpdateTaskHandler(db).ServeHTTP))
+	router.Delete("/api/task", auth(NewDeleteTaskHandler(db).ServeHTTP))
 }
 
 func writeJson(w http.ResponseWriter, data any, statusCode int) {

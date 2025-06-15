@@ -7,11 +7,15 @@ import (
 	"os"
 
 	"gop/pkg/api"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func Run(db *sql.DB) error {
-	api.Init(db)
-	http.Handle("/", http.FileServer(http.Dir("web")))
+	router := chi.NewRouter()
+	api.Init(db, router)
+	fileServer := http.FileServer(http.Dir("web"))
+	router.Handle("/*", fileServer)
 
-	return http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("TODO_PORT")), nil)
+	return http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("TODO_PORT")), router)
 }

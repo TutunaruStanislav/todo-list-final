@@ -10,7 +10,7 @@ COPY web ./web
 COPY .env /app/
 COPY data ./data
 
-# VOLUME /data
+VOLUME /data
 ARG TODO_PORT
 EXPOSE $TODO_PORT
 

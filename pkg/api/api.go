@@ -38,9 +38,10 @@ func (h *TaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func Init(db *sql.DB) {
 	http.HandleFunc("/api/nextdate", nextDayHandler)
-	http.HandleFunc("/api/task", NewTaskHandler(db).ServeHTTP)
-	http.HandleFunc("/api/tasks", NewTasksHandler(db).ServeHTTP)
-	http.HandleFunc("/api/task/done", NewTaskDoneHandler(db).ServeHTTP)
+	http.HandleFunc("/api/signin", signInHandler)
+	http.HandleFunc("/api/task", auth(NewTaskHandler(db).ServeHTTP))
+	http.HandleFunc("/api/tasks", auth(NewTasksHandler(db).ServeHTTP))
+	http.HandleFunc("/api/task/done", auth(NewTaskDoneHandler(db).ServeHTTP))
 }
 
 func writeJson(w http.ResponseWriter, data any, statusCode int) {

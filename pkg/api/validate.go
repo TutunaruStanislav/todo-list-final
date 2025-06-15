@@ -70,3 +70,23 @@ func parseId(r *http.Request) (int64, error) {
 
 	return id, nil
 }
+
+func validatePassword(r *http.Request) (*db.User, error) {
+	var buf bytes.Buffer
+	user := db.NewUser()
+
+	_, err := buf.ReadFrom(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(buf.Bytes(), &user); err != nil {
+		return nil, err
+	}
+
+	if len(user.Password) == 0 {
+		return nil, errors.New("password cannot be blank")
+	}
+
+	return user, nil
+}

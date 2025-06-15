@@ -8,9 +8,8 @@ WORKDIR /app
 COPY --from=build /todo-list-app .
 COPY web ./web
 COPY .env /app/
-COPY data ./data
-
 VOLUME /data
+
 ARG TODO_PORT
 EXPOSE $TODO_PORT
 

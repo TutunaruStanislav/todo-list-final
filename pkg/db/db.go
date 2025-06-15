@@ -20,20 +20,34 @@ const schema string = `
 	CREATE INDEX idx_scheduler_date ON scheduler (date);
 `
 
-func Init() (*sql.DB, error) {
-	var dbFile = "scheduler.db"
-	path := os.Getenv("TODO_DBFILE")
-	if len(path) > 0 {
-		dbFile = path
+func initDataDir() error {
+	dirPath := "./data"
+	_, err := os.Stat(dirPath)
+	if os.IsNotExist(err) {
+		err := os.Mkdir(dirPath, 0755)
+		if err != nil {
+			return err
+		}
 	}
-	_, err := os.Stat(dbFile)
 
+	return nil
+}
+
+func Init() (*sql.DB, error) {
 	var install bool
+
+	err := initDataDir()
+	if err != nil {
+		return nil, err
+	}
+
+	path := os.Getenv("TODO_DBFILE")
+	_, err = os.Stat(path)
 	if err != nil {
 		install = true
 	}
 
-	database, err = sql.Open("sqlite", dbFile)
+	database, err = sql.Open("sqlite", path)
 	if err != nil {
 		return nil, err
 	}

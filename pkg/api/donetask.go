@@ -18,6 +18,13 @@ func NewTaskDoneHandler(db *sql.DB) *TaskDoneHandler {
 	}
 }
 
+// TaskDoneHandler is a handler for the POST request /api/task/done?id=<id>, where <id> is the task id.
+//
+// It gets the id from the GET parameters, validates and performs the following logic:
+//   - if no task repetition rules have been set, the task is permanently deleted from DB
+//   - if task repetition rules were set, the next start date is obtained and the task is updated in DB.
+//
+// As a result, {} is returned in case of success, otherwise an error.
 func (h *TaskDoneHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := parseId(r)
 	if err != nil {

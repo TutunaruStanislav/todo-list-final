@@ -11,6 +11,7 @@ import (
 	"gop/pkg/db"
 )
 
+// checkDate - validates and updates the date in the task if successful, otherwise returns an error.
 func checkDate(task *db.Task) error {
 	now := time.Now()
 	if len(task.Date) == 0 {
@@ -37,6 +38,7 @@ func checkDate(task *db.Task) error {
 	return nil
 }
 
+// validateRequest - parses and validates the request, if successful it returns the filled task model, otherwise it returns an error.
 func validateRequest(r *http.Request) (*db.Task, error) {
 	var buf bytes.Buffer
 	task := &db.Task{}
@@ -62,6 +64,7 @@ func validateRequest(r *http.Request) (*db.Task, error) {
 	return task, nil
 }
 
+// parseId - parses and validates id from string parameter, in case of success returns id int64, otherwise error.
 func parseId(r *http.Request) (int64, error) {
 	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
@@ -71,6 +74,7 @@ func parseId(r *http.Request) (int64, error) {
 	return id, nil
 }
 
+// validatePassword - parses and validates the parameters from the request, if successful returns the filled user model, otherwise error.
 func validatePassword(r *http.Request) (*db.User, error) {
 	var buf bytes.Buffer
 	var input db.UserInput

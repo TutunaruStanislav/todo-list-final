@@ -8,13 +8,14 @@ import (
 	"time"
 )
 
-const DateFormat = "20060102"
-const InputDateFormat = "02.01.2006"
-const maxDaysInterval = 400
+const DateFormat = "20060102"        // main date form
+const InputDateFormat = "02.01.2006" // date format for parse input search parameter
+const maxDaysInterval = 400          // maximum interval of task transfer in days
 
 var daysArray [32]bool
 var monthsArray [13]bool
 
+// datesAreSame is a function that compares the current date with the last or penultimate day of the month, depending on the rules.
 func datesAreSame(date time.Time, firstOfMonth time.Time, last bool, prevLast bool) bool {
 	if last && prevLast {
 		lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
@@ -37,6 +38,7 @@ func datesAreSame(date time.Time, firstOfMonth time.Time, last bool, prevLast bo
 	return false
 }
 
+// weekdaysAreSame is a function that compares weekday numbers.
 func weekdaysAreSame(date time.Time, parsedWeekday int) bool {
 	currentWeekday := int(date.Weekday())
 	if currentWeekday == 0 {
@@ -49,10 +51,12 @@ func weekdaysAreSame(date time.Time, parsedWeekday int) bool {
 	return false
 }
 
+// afterNow is a function that compares 2 dates and returns true if the first is greater than the second.
 func afterNow(date time.Time, now time.Time) bool {
 	return time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC).After(time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC))
 }
 
+// fillDaysArray - function for filling the array of days.
 func fillDaysArray(day int) int {
 	switch day {
 
@@ -71,6 +75,7 @@ func fillDaysArray(day int) int {
 	return day
 }
 
+// parseAndCheckWeekDay - A function that converts a string to a numeric number value for the week, validates and returns it if successful, otherwise an error.
 func parseAndCheckWeekDay(day string) (int, error) {
 	weekday, err := strconv.Atoi(day)
 	if err != nil {
@@ -83,6 +88,7 @@ func parseAndCheckWeekDay(day string) (int, error) {
 	return weekday, nil
 }
 
+// parseAndCheckDay - a function that converts a string to a numeric value of the day of the month, validates and returns it if successful, otherwise an error.
 func parseAndCheckDay(day string) (int, error) {
 	currentDay, err := strconv.Atoi(day)
 	if err != nil {
@@ -95,6 +101,7 @@ func parseAndCheckDay(day string) (int, error) {
 	return currentDay, nil
 }
 
+// parseAndCheckMonth - a function that converts a string to a numeric month value, validates and returns it if successful, otherwise an error.
 func parseAndCheckMonth(month string) (int, error) {
 	currentMonth, err := strconv.Atoi(month)
 	if err != nil {
@@ -107,6 +114,7 @@ func parseAndCheckMonth(month string) (int, error) {
 	return currentMonth, nil
 }
 
+// parseDaysAndMonth - a function that parses rules specifying m (month), which returns an error if it fails.
 func parseDaysAndMonth(days string, months string) (bool, bool, error) {
 	var last bool
 	var prevLast bool
@@ -169,6 +177,12 @@ func parseDaysAndMonth(days string, months string) (bool, bool, error) {
 	return last, prevLast, nil
 }
 
+// NextDate is a function that calculates and returns a date string for the next task run if successful, otherwise an error.
+//
+// Parameters:
+//   - now time.Time is the current date
+//   - dstart string - task start date string
+//   - repeat string - string with the rules of task repetition
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	date, err := time.Parse(DateFormat, dstart)
 	if err != nil {
@@ -306,7 +320,13 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	return date.Format(DateFormat), nil
 }
 
-func nextDayHandler(w http.ResponseWriter, r *http.Request) {
+// NextDayHandler is a GET request handler /api/nextdate?now=<now>&date=<date>&repeat=<repeat>, here:
+//   - <now> is today's date
+//   - <date> - the date of the last task run
+//   - <repeat> - task repetition rules
+//
+// It receives and validates GET parameters and returns the date of the next task execution if successful, otherwise it returns an error.
+func NextDayHandler(w http.ResponseWriter, r *http.Request) {
 	now := r.FormValue("now")
 	currentTime, err := time.Parse(DateFormat, now)
 	if err != nil {

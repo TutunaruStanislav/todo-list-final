@@ -16,7 +16,7 @@ This project is a web server with a Rest API under the hood for task management.
 ## Stack
 - Go 1.24
 - Sqlite3
-- Used go packets: modernc.org/sqlite, github.com/golang-jwt/jwt/v5, github.com/go-chi/chi/v5
+- Used go packets: modernc.org/sqlite, github.com/golang-jwt/jwt/v5, github.com/go-chi/chi/v5, github.com/joho/godotenv
 
 ## Api endpoints
 

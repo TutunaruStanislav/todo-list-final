@@ -5,6 +5,7 @@ import (
 	"errors"
 )
 
+// Model for task
 type Task struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
@@ -13,6 +14,7 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
+// AddTask - adds a record with a new task to DB.
 func AddTask(db *sql.DB, task *Task) (int64, error) {
 	res, err := db.Exec("INSERT INTO scheduler (date, title, comment, repeat) VALUES (:date, :title, :comment, :repeat)",
 		sql.Named("date", task.Date),
@@ -26,12 +28,13 @@ func AddTask(db *sql.DB, task *Task) (int64, error) {
 	return res.LastInsertId()
 }
 
+// GetTasks - finds a list of tasks in DB by specified parameters.
 func GetTasks(db *sql.DB, limit int, search string, date string) ([]*Task, error) {
 	var rows *sql.Rows
 	var err error
 	if len(search) > 0 {
 		search := "%" + search + "%"
-		rows, err = db.Query("SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date LIMIT :limit",
+		rows, err = db.Query("SELECT * FROM scheduler WHERE LOWER(title) LIKE LOWER(:search) OR LOWER(comment) LIKE LOWER(:search) ORDER BY date LIMIT :limit",
 			sql.Named("limit", limit),
 			sql.Named("search", search))
 	} else if len(date) > 0 {
@@ -70,6 +73,7 @@ func GetTasks(db *sql.DB, limit int, search string, date string) ([]*Task, error
 	return res, nil
 }
 
+// GetTasks - finds task by id in DB.
 func GetTask(db *sql.DB, id int64) (*Task, error) {
 	task := &Task{}
 
@@ -82,6 +86,7 @@ func GetTask(db *sql.DB, id int64) (*Task, error) {
 	return task, nil
 }
 
+// UpdateTask- updates the DB task by id.
 func UpdateTask(db *sql.DB, task *Task) error {
 	res, err := db.Exec("UPDATE scheduler SET date = :date, title = :title, comment = :comment, repeat = :repeat WHERE id = :id",
 		sql.Named("date", task.Date),
@@ -104,6 +109,7 @@ func UpdateTask(db *sql.DB, task *Task) error {
 	return nil
 }
 
+// DeleteTask - deletes task by id in DB.
 func DeleteTask(db *sql.DB, id int64) error {
 	res, err := db.Exec("DELETE FROM scheduler WHERE id = :id", sql.Named("id", id))
 	if err != nil {

@@ -17,6 +17,10 @@ func NewUpdateTaskHandler(db *sql.DB) *UpdateTaskHandler {
 	}
 }
 
+// UpdateTaskHandler is a handler for the /api/task PUT request.
+//
+// It receives parameters, validates, updates the DB record with task information
+// and returns {} if successful, otherwise an error.
 func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	task, err := validateRequest(r)
 	if err != nil {

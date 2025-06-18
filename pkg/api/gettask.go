@@ -17,6 +17,9 @@ func NewGetTaskHandler(db *sql.DB) *GetTaskHandler {
 	}
 }
 
+// GetTaskHandler is a handler for the GET request /api/task?id=<id>, where <id> is the task id.
+//
+// It gets id, validates, finds a DB record with task information and returns it in case of success, otherwise error.
 func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := parseId(r)
 	if err != nil {

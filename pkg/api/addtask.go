@@ -22,6 +22,10 @@ func NewAddTaskHandler(db *sql.DB) *AddTaskHandler {
 	}
 }
 
+// AddTaskHandler is a POST request handler /api/addtask.
+
+// It receives the request data, validates it, adds the record to the DB
+// and returns the record id if successful, otherwise an error.
 func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var task *db.Task
 

@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -36,7 +37,10 @@ func writeJson(w http.ResponseWriter, data any, statusCode int) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(statusCode)
-	w.Write(resp)
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("writeJson:", err)
+	}
 }
 
 // writeError is a wrapper over the error.

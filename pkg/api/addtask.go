@@ -8,7 +8,7 @@ import (
 	"gop/pkg/db"
 )
 
-type TaskAddReponse struct {
+type TaskAddResponse struct {
 	ID string `json:"id"`
 }
 
@@ -36,9 +36,9 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := db.AddTask(h.db, task)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusBadRequest)
+		writeError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	writeJson(w, TaskAddReponse{ID: strconv.FormatInt(id, 10)}, http.StatusOK)
+	writeJson(w, TaskAddResponse{ID: strconv.FormatInt(id, 10)}, http.StatusOK)
 }

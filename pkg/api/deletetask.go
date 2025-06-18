@@ -31,8 +31,13 @@ func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = db.DeleteTask(h.db, id)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusNotFound)
-		return
+		if err.Error() == sql.ErrNoRows.Error() {
+			writeError(w, "there were no rows deleted", http.StatusNotFound)
+			return
+		} else {
+			writeError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	writeJson(w, SuccessResponse, http.StatusOK)

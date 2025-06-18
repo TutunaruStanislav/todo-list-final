@@ -51,7 +51,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Password != password {
-		writeError(w, "wrong password provided", http.StatusBadRequest)
+		writeError(w, "wrong password provided", http.StatusUnauthorized)
 		return
 	}
 

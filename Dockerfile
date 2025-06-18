@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /todo-list-app
 
-FROM alpine:latest
+FROM alpine:3.14
 WORKDIR /app
 COPY --from=build /todo-list-app .
 COPY web ./web

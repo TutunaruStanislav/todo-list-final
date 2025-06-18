@@ -121,7 +121,7 @@ func DeleteTask(db *sql.DB, id int64) error {
 		return err
 	}
 	if count == 0 {
-		return errors.New("there were no rows deleted")
+		return sql.ErrNoRows
 	}
 
 	return nil

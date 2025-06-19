@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -36,7 +37,8 @@ func (h *AddTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := db.AddTask(h.db, task)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusInternalServerError)
+		log.Println("AddTask:", err)
+		writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

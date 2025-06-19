@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
@@ -42,7 +43,9 @@ func (h *TasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tasks, err := db.GetTasks(h.db, maxTasks, search, date)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusInternalServerError)
+		log.Println("GetTasks:", err)
+		writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
+		return
 	}
 	writeJson(w, TasksResponse{Tasks: tasks}, http.StatusOK)
 }

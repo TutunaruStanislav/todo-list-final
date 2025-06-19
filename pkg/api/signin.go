@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"os"
 )
@@ -46,7 +47,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 
 	password := os.Getenv("TODO_PASSWORD")
 	if len(password) == 0 {
-		writeError(w, "internal server error", http.StatusInternalServerError)
+		writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -57,7 +58,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 
 	token, err := createToken(user.Username)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusInternalServerError)
+		log.Println("createToken:", err)
+		writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

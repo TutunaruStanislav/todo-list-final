@@ -104,7 +104,7 @@ func UpdateTask(db *sql.DB, task *Task) error {
 		return err
 	}
 	if count == 0 {
-		return errors.New("incorrect id for updating task")
+		return sql.ErrNoRows
 	}
 	return nil
 }

@@ -2,15 +2,17 @@ package api
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
-const DateFormat = "20060102"        // main date form
-const InputDateFormat = "02.01.2006" // date format for parse input search parameter
-const maxDaysInterval = 400          // maximum interval of task transfer in days
+const DateFormat = "20060102"                            // main date form
+const InputDateFormat = "02.01.2006"                     // date format for parse input search parameter
+const maxDaysInterval = 400                              // maximum interval of task transfer in days
+const repeatRuleError = "incorrect repeat rule provided" // default error for incorrect repeat rules
 
 var daysArray [32]bool
 var monthsArray [13]bool
@@ -79,10 +81,11 @@ func fillDaysArray(day int) int {
 func parseAndCheckWeekDay(day string) (int, error) {
 	weekday, err := strconv.Atoi(day)
 	if err != nil {
-		return 0, errors.New("incorrect repeat rule provided")
+		log.Println("strToIntConvert:", err)
+		return 0, errors.New(repeatRuleError)
 	}
 	if weekday < 1 || weekday > 7 {
-		return 0, errors.New("incorrect repeat rule provided")
+		return 0, errors.New(repeatRuleError)
 	}
 
 	return weekday, nil
@@ -92,10 +95,11 @@ func parseAndCheckWeekDay(day string) (int, error) {
 func parseAndCheckDay(day string) (int, error) {
 	currentDay, err := strconv.Atoi(day)
 	if err != nil {
-		return 0, errors.New("incorrect repeat rule provided")
+		log.Println("strToIntConvert:", err)
+		return 0, errors.New(repeatRuleError)
 	}
 	if currentDay < -2 || currentDay == 0 || currentDay > 31 {
-		return 0, errors.New("incorrect repeat rule provided")
+		return 0, errors.New(repeatRuleError)
 	}
 
 	return currentDay, nil
@@ -105,10 +109,11 @@ func parseAndCheckDay(day string) (int, error) {
 func parseAndCheckMonth(month string) (int, error) {
 	currentMonth, err := strconv.Atoi(month)
 	if err != nil {
-		return 0, errors.New("incorrect repeat rule provided")
+		log.Println("strToIntConvert:", err)
+		return 0, errors.New(repeatRuleError)
 	}
 	if currentMonth == 0 || currentMonth > 12 {
-		return 0, errors.New("incorrect repeat rule provided")
+		return 0, errors.New(repeatRuleError)
 	}
 
 	return currentMonth, nil
@@ -186,11 +191,12 @@ func parseDaysAndMonth(days string, months string) (bool, bool, error) {
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	date, err := time.Parse(DateFormat, dstart)
 	if err != nil {
-		return "", err
+		log.Println("dateParse:", err)
+		return "", errors.New("incorrect date provided")
 	}
 
 	if len(repeat) == 0 {
-		return "", errors.New("incorrect repeat rule provided")
+		return "", errors.New(repeatRuleError)
 	}
 
 	chunks := strings.Split(repeat, " ")
@@ -198,14 +204,15 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 
 	case "y", "d":
 		if (chunks[0] == "y" && len(chunks) > 1) || (chunks[0] == "d" && len(chunks) == 1) {
-			return "", errors.New("incorrect repeat rule provided")
+			return "", errors.New(repeatRuleError)
 		}
 
 		var dayInterval int
 		if chunks[0] == "d" {
 			dayInterval, err = strconv.Atoi(chunks[1])
 			if err != nil {
-				return "", err
+				log.Println("strToIntConvert:", err)
+				return "", errors.New(repeatRuleError)
 			}
 			if dayInterval > maxDaysInterval {
 				return "", errors.New("max days interval was overlimited")
@@ -268,12 +275,12 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			}
 
 		default:
-			return "", errors.New("incorrect repeat rule provided")
+			return "", errors.New(repeatRuleError)
 		}
 
 	case "w":
 		if len(chunks) < 2 {
-			return "", errors.New("incorrect repeat rule provided")
+			return "", errors.New(repeatRuleError)
 		}
 
 		weekdays := strings.Split(chunks[1], ",")
@@ -314,7 +321,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			}
 		}
 	default:
-		return "", errors.New("incorrect repeat rule provided")
+		return "", errors.New(repeatRuleError)
 	}
 
 	return date.Format(DateFormat), nil

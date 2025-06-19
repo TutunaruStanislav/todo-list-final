@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+const InternalServerErrorMessage = "internal server error"
+
 type Error struct {
 	Error string `json:"error"`
 }
@@ -31,7 +33,8 @@ func Init(db *sql.DB, router *chi.Mux) {
 func writeJson(w http.ResponseWriter, data any, statusCode int) {
 	resp, err := json.Marshal(data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("serializeJson:", err)
+		http.Error(w, InternalServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

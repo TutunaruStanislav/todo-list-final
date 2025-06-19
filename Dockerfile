@@ -7,7 +7,7 @@ FROM alpine:3.14
 WORKDIR /app
 COPY --from=build /todo-list-app .
 COPY web ./web
-COPY .env /app/
+COPY .env.example /app/.env
 VOLUME /data
 
 ARG TODO_PORT

@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"gop/pkg/db"
@@ -35,7 +36,8 @@ func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			writeError(w, "there were no rows deleted", http.StatusNotFound)
 			return
 		} else {
-			writeError(w, err.Error(), http.StatusInternalServerError)
+			log.Println("DeleteTaskError:", err)
+			writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 	}

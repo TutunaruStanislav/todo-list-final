@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"gop/pkg/db"
@@ -30,8 +31,14 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = db.UpdateTask(h.db, task)
 	if err != nil {
-		writeError(w, err.Error(), http.StatusNotFound)
-		return
+		if err == sql.ErrNoRows {
+			writeError(w, "incorrect id for updating task", http.StatusNotFound)
+			return
+		} else {
+			log.Println("UpdateTask:", err)
+			writeError(w, InternalServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
 	}
 	writeJson(w, SuccessResponse, http.StatusOK)
 }

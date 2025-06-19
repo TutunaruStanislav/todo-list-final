@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -45,11 +46,13 @@ func validateRequest(r *http.Request) (*db.Task, error) {
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		return nil, err
+		log.Println("readBody:", err)
+		return nil, errors.New("invalid data provided")
 	}
 
 	if err = json.Unmarshal(buf.Bytes(), &task); err != nil {
-		return nil, err
+		log.Println("jsonDeserialize:", err)
+		return nil, errors.New("invalid data provided")
 	}
 
 	if len(task.Title) == 0 {
@@ -81,10 +84,12 @@ func validatePassword(r *http.Request) (*db.User, error) {
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		return nil, err
+		log.Println("readBody:", err)
+		return nil, errors.New("wrong password provided")
 	}
 	if err = json.Unmarshal(buf.Bytes(), &input); err != nil {
-		return nil, err
+		log.Println("jsonDeserialize:", err)
+		return nil, errors.New("wrong password provided")
 	}
 
 	user := input.ToUser()

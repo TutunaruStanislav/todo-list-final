@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"os"
 	"strconv"
 	"time"
@@ -16,7 +15,7 @@ var secretKey = []byte(os.Getenv("JWT_SECRET"))
 func createToken(username string) (string, error) {
 	ttl, err := strconv.Atoi(os.Getenv("JWT_TTL"))
 	if err != nil {
-		return "", errors.New("internal server error")
+		return "", err
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
